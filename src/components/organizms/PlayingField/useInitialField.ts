@@ -1,18 +1,12 @@
 import {FieldObject, Row} from "./types";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../../store";
+import {setSizeOfCell} from "../../../store/sizesSlice";
 
-const getSizes = ( heightAmount: number) => {
-    return {
-      sizeOfField: {
-          width: window.innerWidth,
-          height: window.innerHeight,
-      },
-      sizeOfFieldCell: window.innerHeight/heightAmount,
-    }
-};
+const getSizeOfCell = (heightAmount: number, navHeight: number): number => (window.innerHeight -navHeight)/heightAmount;
 
-const getInitialObject = (widthAmount: number, heightAmount: number): FieldObject => {
-    const sizeOfFieldCell = getSizes(heightAmount).sizeOfFieldCell;
+const getInitialObject = (widthAmount: number, heightAmount: number, sizeOfCell: number): FieldObject => {
     const obj: FieldObject = {
         rows: [],
     };
@@ -27,8 +21,8 @@ const getInitialObject = (widthAmount: number, heightAmount: number): FieldObjec
             row.columns.push({
                 cellId: `${i}${j}`,
                 cellCenter: {
-                    x: xPoint + sizeOfFieldCell/2 + j*sizeOfFieldCell,
-                    y: yPoint + sizeOfFieldCell/2 + i*sizeOfFieldCell,
+                    x: xPoint + sizeOfCell/2 + j*sizeOfCell,
+                    y: yPoint + sizeOfCell/2 + i*sizeOfCell,
                 },
             })
         }
@@ -37,38 +31,32 @@ const getInitialObject = (widthAmount: number, heightAmount: number): FieldObjec
     return obj;
 };
 
-type useInitialProps = {
-    widthAmount: number;
-    heightAmount: number;
-}
-type Sizes = {
-    sizeOfField?: {
-        width: number;
-        height: number;
-    }
-    sizeOfFieldCell: number;
-};
-
 type InitialFieldProps = {
     initialObject: FieldObject| null;
-    sizes: Sizes;
 }
 
-export const useInitialField  = ({widthAmount, heightAmount}: useInitialProps): InitialFieldProps => {
+export const useInitialField  = (): InitialFieldProps => {
+
+    const { widthAmount, heightAmount, heightOfTop }  = useSelector((state: RootState) => state.sizes);
+    const dispatch = useDispatch();
+
+    const size = useMemo(() => getSizeOfCell(heightAmount, heightOfTop), [heightAmount, heightOfTop]);
+
     const [initialFieldProps, setInitialFieldProps] = useState<InitialFieldProps>({
         initialObject: null,
-        sizes: {
-            sizeOfFieldCell: 0,
-        },
     });
 
     useEffect(()=>{
         setInitialFieldProps({
             ...initialFieldProps,
-            initialObject: getInitialObject(widthAmount, heightAmount),
-            sizes: getSizes(heightAmount),
+            initialObject: getInitialObject(widthAmount, heightAmount, size),
         });
-    },[widthAmount, heightAmount, initialFieldProps])
+    },[widthAmount, heightAmount])
+
+    useEffect(()=>{
+        dispatch(setSizeOfCell(size))
+    },[size])
+
 
     return initialFieldProps;
 };

@@ -47,3 +47,5 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## Sources
 <a href='https://ru.freepik.com/vectors/technology'>Technology вектор создан(а) stories - ru.freepik.com</a>
+<a href='https://www.freepik.com/vectors/clouds'>Clouds vector created by macrovector - www.freepik.com</a>
+

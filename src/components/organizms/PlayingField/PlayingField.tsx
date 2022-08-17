@@ -1,8 +1,11 @@
 import React from 'react';
 import {useInitialField} from "./useInitialField";
 import styled from "styled-components";
-import Programmer from "../Programmer/Programmer";
 import Cell from "../Cell/Cell";
+import {useSelector} from "react-redux";
+import {RootState} from "../../../store";
+import WarriorsLayer from "../WarriorsLayer/WarriorsLayer";
+import EnemiesLayer from "../EnemiesLayer/EnemiesLayer";
 
 
 const FieldWrapper = styled.div`
@@ -21,17 +24,18 @@ const Row = styled.div`
 `;
 
 const PlayingField: React.FC =() => {
-
-    const { initialObject, sizes } = useInitialField({widthAmount: 8, heightAmount: 5});
+    const sizeOfCell = useSelector((state: RootState) => state.sizes.sizeOfCell);
+    const { initialObject } = useInitialField();
 
     return (
         <FieldWrapper>
             <Field>
-            {initialObject && initialObject.rows.map(row => <Row>
-                {row.columns.map(cell => <Cell cell={cell} cellSize={sizes.sizeOfFieldCell}/>)}
+            {initialObject && initialObject.rows.map((row, i) => <Row key={`row_${i}`}>
+                {row.columns.map(cell => <Cell key={`cell_${cell.cellId}`} cell={cell} cellSize={sizeOfCell}/>)}
             </Row>)}
             </Field>
-            <Programmer/>
+            <WarriorsLayer/>
+            <EnemiesLayer/>
         </FieldWrapper>
     );
 }
